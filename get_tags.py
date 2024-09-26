@@ -1,5 +1,7 @@
 import google.generativeai as genai
 import json
+import openai
+import re
 
 
 def parse_json_tag(tag: str):
@@ -13,7 +15,7 @@ def parse_json_tag(tag: str):
 def get_tags(data):
 
     # 配置您的API密钥
-    genai.configure(api_key="AIzaSyAwD8PVzcrvNn8TMeFFHNXEw3TfBtLgGsw")
+    genai.configure(api_key="API_KEY")
 
     # 初始化模型，这里'gemini-1.5-flash'是示例模型名，您需要替换为实际可用的模型名
     model = genai.GenerativeModel('gemini-1.5-flash')
@@ -41,3 +43,28 @@ def get_tags(data):
     # print(response.text)
 
     return parse_json_tag(str(response.text))
+
+
+def get_tags_gaianet(urls: list[str]):
+    prompt = "Generate personality tags based on the following user's browsing history. And here're some requirements:\n" +\
+        "1. No need to give the explanation of the tags.\n" + \
+        "2. According to the relation between the urls and the tags, given a reliablity for each tag, the value is from 0 to 1." + \
+        "3. the amount of tags is 10, give the 10 tags that get the highest reliability.\n" + \
+        "Following is the given urls" + \
+        "\n".join(urls)
+    client = openai.OpenAI(
+        base_url="https://llama.us.gaianet.network/v1", api_key="APIKEY")
+    completion = client.chat.completions.create(
+        model="llama",
+        messages=[
+            {
+                "role": "system",
+                "content": prompt
+            }
+        ]
+    )
+    # print(completion.choices[0].message.content);
+    content = completion.choices[0].message.content
+    pattern = r'\d+\. "[^"]*"'
+    matches = re.findall(pattern, content)
+    return matches

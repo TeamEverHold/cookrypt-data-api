@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from allow_origins import origins
-from get_tags import get_tags as get_tags_from_ai
+from get_tags import get_tags_gaianet as get_tags_from_ai
 
 
 class HistoryItem(BaseModel):
